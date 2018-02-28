@@ -25,4 +25,9 @@ Theorem app_eq_nil : forall (A : Type)(l l' : list A), l ++ l' = nil -> l = nil 
   destruct l.
   discriminate.
   discriminate.
+Qed.
+
+Goal forall (n m : nat)(f : nat -> nat), f n = n -> S (f (f n)) = S m -> n = m.
+  intros.
+  congruence.
   Qed.
