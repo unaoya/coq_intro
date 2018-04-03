@@ -8,23 +8,9 @@ Definition intsec {X : Set} (U V : Subset X) : Subset X :=
 Definition fiber {X A : Set} (f : A -> Subset X) (V : Subset X) : Subset A :=
   fun (a : A) => V = (f a).
 
-Hypothesis subset_equal : forall {X : Set} (U V : Subset X), (forall x : X, U x <-> V x) -> U = V.  
-Lemma incl_cap : forall {X : Set} (U V : Subset X) (x : X), incl U V -> (intsec U V) x <-> U x.
-  Proof.
-  intros.
-  unfold intsec.
-  destruct H.
-  split.
-intro.
-apply H0.
-intro.
-split.
-apply H0.
-apply H.
-apply H0.
-  Qed.
+Hypothesis subset_equal : forall {X : Set} (U V : Subset X), (forall x : X, U x <-> V x) -> U = V.
 
-  Lemma incl_trans : forall {X : Set} (U V W : Subset X), incl U V -> incl V W -> incl U W.
+Lemma incl_trans : forall {X : Set} (U V W : Subset X), incl U V -> incl V W -> incl U W.
   Proof.
     intros.
 destruct H.
@@ -83,6 +69,22 @@ Proof.
   apply H.
   apply H0.
 Qed.
+Lemma incl_intsec_eq : forall {X : Set} (U V : Subset X), incl U V -> intsec U V = U.
+  Proof.
+    intros.
+    unfold intsec.
+    apply subset_equal.
+    intro.
+    split.
+    intro.
+    apply H0.
+    intro.
+    split.
+    apply H0.
+    destruct H.
+    apply H.
+    apply H0.
+  Qed.
 
 Lemma fiber_in : forall {X A : Set} (U : Subset X) (a : A) (f : A -> Subset X),
         fiber f U a -> U = (f a).
@@ -104,13 +106,6 @@ Hypothesis ps_empty : forall a b : A, r a (empty X) = r b (empty X).
 Hypothesis r_intsec : forall a : A, forall U V : Subset X, r (r a U) V = r a (intsec U V).
 Hypothesis E_domain : forall a : A, r a (E a) = a.
 Hypothesis E_r : forall a : A, forall U : Subset X, E (r a U) = intsec (E a) U.
-
-Lemma res : forall a b : A, forall U : Subset X, E a = U -> r b (E a) = r b U.
-Proof.  
-  intros.
-f_equal.
-  apply H.
-Qed.
 
 Lemma empty_idemp_lem : forall a : A, E a = empty X -> r a (empty X) = a.
   Proof.
@@ -138,29 +133,13 @@ Qed.
 
 Lemma res_incl : forall (a : A) (U V : Subset X), incl U V -> E a = V -> r (r a V) U = r a U.
 Proof.
-  intros.  
-  assert (r (r a V) U = r a (intsec V U)).
-  apply r_intsec.
-  assert (intsec V U = U).
-  apply subset_equal.
-  intro.
-  destruct H.
-  split.
-  unfold intsec.
-  intro.
-  apply H2.
-  unfold intsec.
-  intro.
-  split.
-  apply H.
-apply H2.
-apply H2.
-assert (r a (intsec V U) = r a U).
-f_equal.
-apply H2.
-rewrite <- H3.
+  intros.
+  assert (r a V = a).
+  rewrite <- H0.
+  apply E_domain.
+  f_equal.
   apply H1.
-Qed.
+  Qed.
 
 Lemma r_id : forall (U : Subset X) (a : A), fiber E U a -> r a U = a.
 Proof.
@@ -168,47 +147,39 @@ Proof.
   assert (U = (E a)).
   apply fiber_in.
   apply H.
-  assert (r a U = r a (E a)).
-  f_equal.
-  apply H0.
-  rewrite H1.
-  apply E_domain.
+  rewrite H0.
+    apply E_domain.
 Qed.
 
-
-  Lemma r_trans : forall (U V W : Subset X) (a : A), incl U V -> incl V W -> r (r a V) U = r a U.
-  Proof.
-        intros.    
-        assert (intsec U V = U).
-        unfold intsec.
-        apply subset_equal.
-        intros.
-        split.
-        intros.
-        apply H1.
-        intros.
-        split.
-        apply H1.
-        destruct H.
-        apply H.
-        apply H1.
-        assert (r (r a V) U = r a (intsec V U)).
-        apply r_intsec.
-    rewrite H2.
-    f_equal.
-    unfold intsec.
-    apply subset_equal.
-    intros.
-    split.
-    intro.
-    apply H3.
-    intros.
-    split.
-    destruct H.
-    apply H.
-    apply H3.
-    apply H3.    
+Lemma subset_eq_comm : forall U V :Subset X, U = V -> V = U.
+Proof.
+  intros.
+  apply subset_equal.
+  intros.
+  destruct H.
+  split.
+  auto.
+  auto.
   Qed.
+
+Lemma r_trans : forall (U V W : Subset X) (a : A), incl U V -> incl V W -> E a = W -> r (r a V) U = r a U.
+Proof.  
+  intros.
+  assert (r (r a V) U = r a (intsec V U)).
+  apply r_intsec.
+  assert (intsec U V = U).
+  apply incl_intsec_eq.
+  apply H.
+  rewrite H2.
+  f_equal.
+  apply subset_eq_comm.
+  apply subset_eq_comm in H3.
+  assert (intsec U V = intsec V U).
+  apply intsec_comm.
+  rewrite <- H4.
+  apply H3.
+Qed.
+
 
   
   
