@@ -386,9 +386,6 @@ Proof.
   auto.
   auto.
 Qed.
-
-  (*
-
 Class TopSpace (X : Set) (Open : Subset X -> Prop) :=
   {
     TS_whole : Open (whole X);
@@ -398,4 +395,98 @@ Class TopSpace (X : Set) (Open : Subset X -> Prop) :=
     TS_union : forall (I : Set) (index : I -> Subset X),
         (forall i : I, Open (index i)) -> Open (bigcup I index)
   }.
-*)
+Class Continuous (X : Set) (XOpen : Subset X -> Prop)
+      (Y : Set) (YOpen : Subset Y -> Prop)
+      (f : X -> Y) :=
+  {
+    Conti_TopSpace_l :>
+                     TopSpace X XOpen;
+    Conti_TopSpace_r :>
+                     TopSpace Y YOpen;
+    Conti_preim :
+      forall V : Subset Y, YOpen V -> XOpen (preimage f V)
+  }.
+Class Connected (X : Set) (Open : Subset X -> Prop) (S : Subset X) :=
+  {
+    Conn_TopSpace :> TopSpace X Open;
+    Conn_insep :
+      forall U1 U2 : Subset X,
+        Open U1 -> Open U2 -> incl S (union U1 U2) ->
+        (exists x1 : X, (intsec S U1) x1) ->
+        (exists x2 : X, (intsec S U2) x2) ->
+        exists x : X, intsec S (intsec U1 U2) x
+  }.
+Lemma intsec_and : forall {X : Set} (S1 S2 : Subset X) (x : X),
+    (intsec S1 S2) x <-> S1 x /\ S2 x.
+Proof.
+  intros.
+  split.
+  intro.
+  unfold intsec in H.
+  unfold bigcap in H.
+  split.
+  specialize H with true.
+  simpl in H.
+  apply H.
+  specialize H with false.
+  simpl in H.
+  apply H.
+  intro.
+  unfold intsec.
+  unfold bigcap.
+  induction i.
+  apply H.
+  apply H.
+Qed.
+Lemma union_or : forall {X : Set} (S1 S2 : Subset X) (x : X),
+    (union S1 S2) x <-> S1 x \/ S2 x.
+Proof.
+  intros.
+  split.
+  intro.
+  unfold union in H.
+  unfold bigcup in H.
+  destruct H as [i H_i].
+  induction i.
+  left.
+  apply H_i.
+  right.
+  apply H_i.
+  intro.
+  unfold union.
+  unfold bigcup.
+  destruct H as [H | H].
+  exists true.
+  apply H.
+  exists false.
+  apply H.
+Qed.
+Lemma image_push : forall {X Y : Set} (S: Subset X) (f:X -> Y) (x : X),
+    S x -> (image f S) (f x).
+Proof.
+  intros.
+  unfold image.
+  exists x.
+  split.
+  apply H.
+  reflexivity.
+Qed.
+Lemma preimage_pull : forall {X Y : Set} (S : Subset Y) (f:X -> Y) (x : X),
+    S (f x) -> preimage f S x.
+Proof.
+  intros.
+  unfold preimage.
+  apply H.
+Qed.
+
+Section Connectedness.
+
+Variables X Y : Set.
+Variable XOpen : Subset X -> Prop.
+Variable YOpen : Subset Y -> Prop.
+Hypothesis X_TopSpace : TopSpace X XOpen.
+Hypothesis Y_TopSpace : TopSpace Y YOpen.
+Variable f : X -> Y.
+Hypothesis f_Continuous : Continuous X XOpen Y YOpen f.
+Variable U : Subset X.
+Hypothesis U_Connected : Connected X XOpen U.
