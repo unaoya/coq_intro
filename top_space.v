@@ -490,3 +490,76 @@ Variable f : X -> Y.
 Hypothesis f_Continuous : Continuous X XOpen Y YOpen f.
 Variable U : Subset X.
 Hypothesis U_Connected : Connected X XOpen U.
+
+Instance image_Connected : Connected Y YOpen (image f U).
+Proof.
+  apply Build_Connected.
+  apply Y_TopSpace.
+  intros.
+  destruct H2.
+  destruct H3.
+  assert (exists x : X, (intsec U (intsec (preimage f U1) (preimage f U2)) x)).
+  apply Conn_insep.
+  apply f_Continuous.
+  apply H.
+  apply f_Continuous.
+  apply H0.
+  assert (incl U (preimage f (image f U))).
+  apply im_preim.
+  assert (incl (preimage f (image f U)) (preimage f (union U1 U2))).
+  apply preim_incl.
+  apply H1.
+  assert (preimage f (union U1 U2) = union (preimage f U1) (preimage f U2)).
+  apply preim_union.
+  rewrite <- H6.
+  apply (incl_trans U (preimage f (image f U)) (preimage f (union U1 U2))).
+  apply H4.
+  apply H5.
+  apply intsec_and in H2.
+  destruct H2.
+  inversion H2.
+  exists x1.
+  apply intsec_and.
+  split.
+  apply H5.
+  assert (U1 (f x1)).
+  destruct H5.
+  subst.
+  apply H4.
+  unfold preimage.
+  apply H6.
+  apply intsec_and in H3.
+  destruct H3.
+  inversion H3.
+  destruct H5.
+  subst.
+  assert ((preimage f U2) x1).
+  unfold preimage.
+  apply H4.
+  exists x1.
+  apply intsec_and.
+  split.
+  apply H5.
+  apply H6.
+  inversion H4.
+  apply intsec_and in H5.
+  destruct H5.
+  apply intsec_and in H6.
+  destruct H6.
+  remember (f x1) as y.
+  exists y.
+  unfold preimage in H6.
+  unfold preimage in H7.
+  subst.
+  apply intsec_and.
+  split.
+  unfold image.
+  exists x1.
+  split.
+  apply H5.
+  reflexivity.
+  apply intsec_and.
+  split.
+  apply H6.
+  apply H7.
+Qed.
