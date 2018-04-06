@@ -231,20 +231,163 @@ Proof.
   unfold image.
   exists x0.
   auto.
-  
-  
+  exists true.
+  apply H1.
+  assert ((image f V) x).
+  unfold image.
+  exists x0.  
+  auto.
+  exists false.
+  apply H1.
+Qed.
+Lemma preim_incl : forall {X Y : Set} (f:X -> Y) (U V :Subset Y), incl U V -> incl (preimage f U) (preimage f V).
+Proof.
+  intros.
+  apply Incl_intro.
+  intros.
+  unfold preimage.
+  destruct H.
+  unfold preimage in H0.
+  apply H.
+  auto.
+Qed.  
+Lemma preim_intsec : forall {X Y : Set} (f:X -> Y) (U V : Subset Y), preimage f (intsec U V) = intsec (preimage f U) (preimage f V).
+Proof.
+  intros.
+  apply subset_equal.
+  intros.
+  split.
+  intros.
+  unfold preimage in H.
+  unfold intsec in H.
+  unfold bigcap in H.  
+  unfold intsec.
+  unfold bigcap.
+  induction i.
+  specialize H with true.
+  unfold preimage.
+  auto.
+  unfold preimage.
+  specialize H with false.
+  auto.
+  intros.
+  unfold preimage.
+  unfold intsec.
+  unfold bigcap.
+  unfold intsec in H.
+  unfold bigcap in H.
+  induction i.
+  specialize H with true.
+  simpl in H.
+  unfold preimage in H.
+  auto.
+  specialize H with false.
+  simpl in H.
+  unfold preimage in H.
+  auto.
+Qed.  
+Lemma preim_union : forall {X Y:Set} (f:X -> Y) (U V:Subset Y), preimage f (union U V) = union (preimage f U) (preimage f V).
+Proof.
+  intros.
+  apply subset_equal.
+  split.
+  intros.
+  unfold union.
+  unfold bigcup.
+  unfold preimage in H.
+  unfold union in H.
+  unfold bigcup in H.
+  destruct H.
+  induction x0.
+  exists true.
+  unfold preimage.
+  auto.
+  exists false.
+  unfold preimage.
+  auto.
+  intros.
+  unfold preimage.
+  destruct H.
+  induction x0.
+  unfold preimage in H.
+  apply union_in.
+  auto.
+  unfold preimage in H.
+  unfold union.
+  unfold bigcup.
+  exists false.
+  auto.
+Qed.  
+Lemma im_preim : forall {X Y:Set} (f:X -> Y) (U:Subset X), incl U (preimage f (image f U)).
+Proof.
+  intros.
+  apply Incl_intro.
+  intros.
+  unfold preimage.
+  unfold image.
+  exists x.
+  auto.
+Qed.  
+Lemma preim_im : forall {X Y:Set} (f:X -> Y) (U:Subset Y), incl (image f (preimage f U)) U.
+Proof.
+  intros.
+  apply Incl_intro.
+  intros.
+  unfold image in H.
+  destruct H.
+  destruct H.
+  unfold preimage in H.
+  rewrite <- H0.
+  auto.
+Qed.  
+Lemma compos_preim : forall {X Y Z:Set} (f:X -> Y) (g:Y -> Z) (U : Subset Z), preimage f (preimage g U) = preimage (composite g f) U.
+Proof.
+  intros.
+  apply subset_equal.
+  split.
+  intros.
+  unfold preimage.
+  unfold preimage in H.
+  unfold composite.
+  auto.
+  intros.
+  unfold preimage in H.
+  unfold preimage.
+  unfold composite in H.
+  auto.
+Qed.  
+Lemma compos_im : forall {X Y Z:Set} (f:X -> Y) (g:Y -> Z) (U : Subset X), image g (image f U) = image (composite g f) U.
+Proof.
+  intros.
+  apply subset_equal.
+  split.
+  intros.
+  unfold image.
+  unfold image in H.
+  destruct H.
+  destruct H.
+  destruct H.
+  destruct H.
+  unfold composite.
+  exists x1.
+  split.
+  auto.
+  rewrite H1.
+  auto.
+  intros.
+  unfold image.
+  unfold image in H.
+  destruct H.
+  destruct H.
+  unfold composite in H0.
+  exists (f x0).
+  split.
+  exists x0.
+  auto.
+  auto.
+Qed.
 
-
-
-  
-  (* Lemma preim_incl : forall *)
-  (* Lemma preim_intsec *)
-  (* Lemma preim_union *)
-  (* Lemma im_preim *)
-  (* Lemma preim_im *)
-  (* Lemma compos_preim *)
-  (* Lemma compos_im *)
-  
+  (*
 
 Class TopSpace (X : Set) (Open : Subset X -> Prop) :=
   {
@@ -255,3 +398,4 @@ Class TopSpace (X : Set) (Open : Subset X -> Prop) :=
     TS_union : forall (I : Set) (index : I -> Subset X),
         (forall i : I, Open (index i)) -> Open (bigcup I index)
   }.
+*)
