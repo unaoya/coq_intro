@@ -3,6 +3,7 @@ http://ccvanishing.hateblo.jp/entry/2013/01/06/212707
 https://gist.github.com/y-taka-23/4466805A
 *)
 Definition Subset (X : Set) : Type := X -> Prop.
+Axiom subset_equal : forall {X : Set} (U V : Subset X), U = V <-> forall x : X, U x <-> V x.
 Definition whole (X : Set) : Subset X := fun (x : X) => x = x.
 Definition empty (X : Set) : Subset X := fun (x : X) => x <> x.
 Inductive incl {X : Set} : Subset X -> Subset X -> Prop :=
@@ -64,12 +65,13 @@ Proof.
   split.
   apply intsec_in.
   intros.
+  destruct H.
   unfold intsec.
   unfold bigcap.
   induction i.
   apply H0.
-  destruct H.
-  auto.
+  apply H.
+  apply H0.
 Qed.
 Definition bigcup {X : Set} (I : Set) (index : I -> Subset X) : Subset X :=
   fun (x : X) => exists i : I, (index i) x.
@@ -90,12 +92,8 @@ Qed.
 Lemma union_incl {X : Set} : forall U V : Subset X, incl U (union U V).
 Proof.  
   intros.
-  split.
-  intros.
-  unfold union.
-  unfold bigcup.
-  exists true.
-  auto.  
+  apply Incl_intro.
+  apply union_in.
 Qed.
 Lemma union_equle {X : Set} : forall U V : Subset X, incl U V -> (forall x : X, (union U V) x <-> V x).
 Proof.
@@ -107,35 +105,14 @@ Proof.
   destruct H0.
   induction x0.
   destruct H.
-  auto.
-  auto.
-  intros.
-  unfold union.
-  unfold bigcup.
-  exists false.
-  auto.
-Qed.
-Definition composite {X Y Z : Set} (g : Y -> Z) (f : X -> Y) : X -> Z :=
-  fun (x : X) => g (f x).
-Definition image {X Y : Set} (f : X -> Y) (U : Subset X) : Subset Y :=
-  fun (y : Y) => exists x : X, U x /\ f x = y.
-Definition preimage {X Y : Set} (f : X -> Y) (V : Subset Y) : Subset X :=
-  fun (x : X) => V (f x).
-Lemma im_incl : forall {X Y : Set} (f : X -> Y) (U V : Subset X), incl U V -> incl (image f U) (image f V).
-Proof.
-  intros.
-  apply Incl_intro.
-  intros.
-  unfold image.
-  destruct H0.
-  destruct H.
-  exists x0.
-  split.
   apply H.
   apply H0.
   apply H0.
+  unfold union.
+  unfold bigcup.
+  exists false.
+  apply H0.
 Qed.
-Axiom subset_equal : forall {X : Set} (U V : Subset X), U = V <-> forall x : X, U x <-> V x.
 Lemma incl_intsec : forall {X : Set} (U V W : Subset X), incl W U -> incl W V -> incl W (intsec U V).
 Proof.
   intros.
@@ -148,6 +125,21 @@ Proof.
   induction i.
   auto.
   auto.
+Qed.
+Lemma subset_incl_eq : forall {X : Set} (U V : Subset X), incl U V -> incl V U -> U = V.
+Proof.
+  intros.
+  apply subset_equal.
+  intros.
+  split.
+  intro.
+  destruct H.
+  apply H.
+  apply H1.
+  intro.
+  destruct H0.
+  apply H0.
+  apply H1.
 Qed.
 Lemma intsec_comm : forall {X : Set} (U V : Subset X), intsec U V = intsec V U.
 Proof.
@@ -180,6 +172,75 @@ Proof.
   specialize H with true.
   auto.
 Qed.  
+Lemma intsec_and : forall {X : Set} (S1 S2 : Subset X) (x : X),
+    (intsec S1 S2) x <-> S1 x /\ S2 x.
+Proof.
+  intros.
+  split.
+  intro.
+  unfold intsec in H.
+  unfold bigcap in H.
+  split.
+  specialize H with true.
+  simpl in H.
+  apply H.
+  specialize H with false.
+  simpl in H.
+  apply H.
+  intro.
+  unfold intsec.
+  unfold bigcap.
+  induction i.
+  apply H.
+  apply H.
+Qed.
+Lemma union_or : forall {X : Set} (S1 S2 : Subset X) (x : X),
+    (union S1 S2) x <-> S1 x \/ S2 x.
+Proof.
+  intros.
+  split.
+  intro.
+  unfold union in H.
+  unfold bigcup in H.
+  destruct H as [i H_i].
+  induction i.
+  left.
+  apply H_i.
+  right.
+  apply H_i.
+  intro.
+  unfold union.
+  unfold bigcup.
+  destruct H as [H | H].
+  exists true.
+  apply H.
+  exists false.
+  apply H.
+Qed.
+
+
+Definition composite {X Y Z : Set} (g : Y -> Z) (f : X -> Y) : X -> Z :=
+  fun (x : X) => g (f x).
+Definition image {X Y : Set} (f : X -> Y) (U : Subset X) : Subset Y :=
+  fun (y : Y) => exists x : X, U x /\ f x = y.
+Definition preimage {X Y : Set} (f : X -> Y) (V : Subset Y) : Subset X :=
+  fun (x : X) => V (f x).
+Lemma im_incl : forall {X Y : Set} (f : X -> Y) (U V : Subset X), incl U V -> incl (image f U) (image f V).
+Proof.
+  intros.
+  apply Incl_intro.
+  intros.
+  unfold image.
+  unfold image in H0.
+  inversion H0.
+  destruct H0.
+  exists x0.
+  split.
+  inversion H.
+  apply H2.
+  apply H1.
+  apply H1.
+Qed.  
 Lemma im_intsec : forall {X Y : Set} (f : X -> Y) (U V : Subset X), incl (image f (intsec U V)) (intsec (image f U) (image f V)).
 Proof.
   intros.
@@ -193,8 +254,8 @@ Proof.
   rewrite H0.
   apply intsec_incl.
   apply incl_intsec.
-  auto.
-  auto.
+  apply H.
+  apply H0.
 Qed.  
 Lemma im_union : forall {X Y : Set} (f : X -> Y) (U V : Subset X), union (image f U) (image f V) = image f (union U V).
 Proof.
@@ -386,6 +447,24 @@ Proof.
   auto.
   auto.
 Qed.
+Lemma image_push : forall {X Y : Set} (S: Subset X) (f:X -> Y) (x : X),
+    S x -> (image f S) (f x).
+Proof.
+  intros.
+  unfold image.
+  exists x.
+  split.
+  apply H.
+  reflexivity.
+Qed.
+Lemma preimage_pull : forall {X Y : Set} (S : Subset Y) (f:X -> Y) (x : X),
+    S (f x) -> preimage f S x.
+Proof.
+  intros.
+  unfold preimage.
+  apply H.
+Qed.
+
 Class TopSpace (X : Set) (Open : Subset X -> Prop) :=
   {
     TS_whole : Open (whole X);
@@ -416,68 +495,6 @@ Class Connected (X : Set) (Open : Subset X -> Prop) (S : Subset X) :=
         (exists x2 : X, (intsec S U2) x2) ->
         exists x : X, intsec S (intsec U1 U2) x
   }.
-Lemma intsec_and : forall {X : Set} (S1 S2 : Subset X) (x : X),
-    (intsec S1 S2) x <-> S1 x /\ S2 x.
-Proof.
-  intros.
-  split.
-  intro.
-  unfold intsec in H.
-  unfold bigcap in H.
-  split.
-  specialize H with true.
-  simpl in H.
-  apply H.
-  specialize H with false.
-  simpl in H.
-  apply H.
-  intro.
-  unfold intsec.
-  unfold bigcap.
-  induction i.
-  apply H.
-  apply H.
-Qed.
-Lemma union_or : forall {X : Set} (S1 S2 : Subset X) (x : X),
-    (union S1 S2) x <-> S1 x \/ S2 x.
-Proof.
-  intros.
-  split.
-  intro.
-  unfold union in H.
-  unfold bigcup in H.
-  destruct H as [i H_i].
-  induction i.
-  left.
-  apply H_i.
-  right.
-  apply H_i.
-  intro.
-  unfold union.
-  unfold bigcup.
-  destruct H as [H | H].
-  exists true.
-  apply H.
-  exists false.
-  apply H.
-Qed.
-Lemma image_push : forall {X Y : Set} (S: Subset X) (f:X -> Y) (x : X),
-    S x -> (image f S) (f x).
-Proof.
-  intros.
-  unfold image.
-  exists x.
-  split.
-  apply H.
-  reflexivity.
-Qed.
-Lemma preimage_pull : forall {X Y : Set} (S : Subset Y) (f:X -> Y) (x : X),
-    S (f x) -> preimage f S x.
-Proof.
-  intros.
-  unfold preimage.
-  apply H.
-Qed.
 
 Section Connectedness.
 
