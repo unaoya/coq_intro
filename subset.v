@@ -410,10 +410,8 @@ Proof.
   destruct H.
   unfold composite.
   exists x1.
-  split.
-  auto.
-  rewrite H1.
-  auto.
+  subst.
+  intuition.
   intros.
   unfold image.
   unfold image in H.
@@ -423,8 +421,8 @@ Proof.
   exists (f x0).
   split.
   exists x0.
-  auto.
-  auto.
+  intuition.
+  apply H0.
 Qed.
 Lemma image_push : forall {X Y : Set} (S: Subset X) (f:X -> Y) (x : X),
     S x -> (image f S) (f x).
