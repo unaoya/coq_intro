@@ -158,11 +158,115 @@ Proof.
   apply Union_intror.
   apply H.
 Qed.  
-Lemma cardinal_disjoint_union : forall (X Y : Ensemble U) (n m : nat), cardinal X n -> cardinal Y m -> Intersection U X Y = Empty_set U -> cardinal (Union U X Y) (n + m).
+Lemma finite_disjoint_union (n : nat) : forall X Y : Ensemble U, cardinal X n -> Finite Y -> Disjoint U X Y -> Finite (Union U X Y).
+Proof.
+  induction n.
+  intros.
+  inversion H.
+  assert (Union U (Empty_set U) Y = Y).
+  apply union_empty.
+  rewrite H3.
+  apply H0.
+  intros.
+  inversion H.
+  assert (~ In U Y x).
+  destruct H1.
+  specialize H1 with x.
+  intro.
+  assert (In U X x).
+  unfold Add in H4.
+  destruct H4.
+  unfold In.
+  apply Union_intror.
+  unfold In.
+  reflexivity.
+  assert (In U (Intersection U X Y) x).
+  unfold In.
+  apply Intersection_intro.
+  apply H7.
+  apply H6.
+  intuition.
+  assert (Union U (Add U A x) Y = Add U (Union U A Y) x).
+  apply union_add.
+  rewrite H7.
+  apply Union_is_finite.
+  apply IHn.
+  apply H3.
+  apply H0.
+  apply Disjoint_intro.
+  intros.
+  intro.
+  unfold In in H8.
+  destruct H8.
+  destruct H1.
+  specialize H1 with x0.
+  unfold In in H1.
+  assert (In U X x0).
+  rewrite <- H4.
+  unfold In.
+  unfold Add.
+  apply Union_introl.
+  apply H8.
+  assert (In U (Intersection U X Y) x0).
+  unfold In.
+  apply Intersection_intro.
+  apply H10.
+  apply H9.
+  intuition.
+  intro.
+  unfold In in H8.
+  destruct H8.
+  intuition.
+  intuition.
+Qed.
+Lemma union_decompose : forall X Y : Ensemble U, Union U X Y = Union U (Union U (Setminus U X Y) (Intersection U X Y)) (Setminus U Y X).
 Proof.
   intros.
+  apply Extensionality_Ensembles.
+  unfold Same_set.
+  split.
+  unfold Included.
+  intros.
+  unfold In.
+  unfold In in H.
+  case H.
+  intros.
+  unfold In in H0.
+  assert (X = Union U (Intersection U X Y) (Setminus U X Y)).
+  apply Extensionality_Ensembles.
+  unfold Same_set.
+  split.
+  unfold Included.
+  intros.
+  unfold In.
+  apply Union_introl
+  apply H1.
+  unfold Included.
+  intros.
+  unfold In in H1.
+  case H1.
+  intuition.
+  intuition.
+  unfold In in H2.
+  unfold Setminus in H2.
+  apply H2.
+  assert (In U (Union U (Intersection U X Y) (Setminus U X Y)) x0).
+  rewrite <- H1.
+  apply H0.
+  unfold In in H2.
+  destruct H2.
+  apply Union_introl.
+  unfold In.
+  apply Union_introl
+  apply H2.
   
+  subst.
+  rewrite <- H0 in H1.
+  intuition.
 
+  apply 
+  case H0.
+  
   
 (*
 Lemma fin_union : forall X Y : Ensemble U, Finite X -> Finite Y -> Finite (Union U X Y).
