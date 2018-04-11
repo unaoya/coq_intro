@@ -1,4 +1,5 @@
 Require Import Ensembles.
+Require Import Classical.
 
 Variable U : Type.
 Inductive Finite : Ensemble U -> Prop :=
@@ -158,8 +159,9 @@ Proof.
   apply Union_intror.
   apply H.
 Qed.  
-Lemma finite_disjoint_union (n : nat) : forall X Y : Ensemble U, cardinal X n -> Finite Y -> Disjoint U X Y -> Finite (Union U X Y).
+Lemma finite_disjoint_union : forall (n : nat) (X Y : Ensemble U), cardinal X n -> Finite Y -> Disjoint U X Y -> Finite (Union U X Y).
 Proof.
+  intro n.
   induction n.
   intros.
   inversion H.
@@ -219,6 +221,87 @@ Proof.
   intuition.
   intuition.
 Qed.
+Lemma finite_cardinal : forall X : Ensemble U, Finite X -> exists n : nat, cardinal X n.
+Proof.
+  intros.
+  induction H.
+  exists 0.
+  apply card_empty.
+  destruct IHFinite.
+  exists (S x0).
+  apply card_add.
+  apply H1.
+  apply H0.
+Qed.
+
+Lemma sub_disj : forall X Y : Ensemble U, Included U X Y -> Y = Union U X (Setminus U Y X) /\ Disjoint U X (Setminus U Y X).
+Proof.
+  intros.
+  split.
+  assert (forall x : U, In U Y x -> In U X x \/ In U (Setminus U Y X) x).
+  intros.
+  assert (forall x : U, In U Y x -> In U X x \/ ~ In U X x).
+  intros.
+  apply classic.
+  specialize H1 with x.
+  case H1.
+  apply H0.
+  intuition.
+  intro.
+  right.
+  unfold In.
+  unfold Setminus.
+  split.
+  apply H0.
+  apply H2.
+  apply Extensionality_Ensembles.
+  unfold Same_set.
+  split.
+  unfold Included.
+  intros.
+  specialize H0 with x.
+  apply H0 in H.
+  case H.
+  intros.
+  unfold In.
+  apply Union_introl.
+  apply H2.
+  intros.
+  apply Union_intror.
+  apply H2.
+
+  
+  
+  case H0.
+  apply Union_intror
+  
+Lemma finite_subset : forall X Y : Ensemble U, Included U X Y -> Finite Y -> Finite X.
+Proof.
+  intros.
+  induction H0.
+  assert (X = Empty_set U).
+  apply Extensionality_Ensembles.
+  unfold Same_set.
+  split.
+  apply H.
+  unfold Included.
+  intros.
+  destruct H0.
+  rewrite H0.
+  apply Empty_is_finite.
+  apply IHFinite
+  unfold Included in H.
+  unfold Included.
+  intros.
+  specialize H with x0.
+  destruct H.
+  apply H2.
+  apply H.
+  unfold In in H.
+  destruct H.
+  apply H1.
+
+  
 Lemma union_decompose : forall X Y : Ensemble U, Union U X Y = Union U (Union U (Setminus U X Y) (Intersection U X Y)) (Setminus U Y X).
 Proof.
   intros.

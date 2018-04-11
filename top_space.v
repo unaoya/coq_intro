@@ -34,6 +34,22 @@ Class Connected (X : Set) (Open : Subset X -> Prop) (S : Subset X) :=
         (exists x2 : X, (intsec S U2) x2) ->
         exists x : X, intsec S (intsec U1 U2) x
   }.
+Definition identity (X : Set) : X -> X := fun (x : X) => x.
+                                                   
+Class Homeomorphism (X Y : Set) (XOpen : Subset X -> Prop) (YOpen : Subset Y -> Prop) (f : X -> Y) :=
+  {
+    Homeo_conti :> Continuous X XOpen Y YOpen f;
+    Homeo_bijec :
+      exists g : Y -> X,
+        composite g f = identity X ->
+        composite f g = identity Y ->
+        Continuous Y YOpen X XOpen g
+  }.
+Class Locally_homeo (X Y : Set) (XOpen : Subset X -> Prop) (YOpen : Subset Y -> Prop) (f : X -> Y) :=
+  {
+    LH_conti :> Continuous X XOpen Y YOpen f;
+    LH_locinv :
+      forall x : X, exists U : Subset X, U x -> XOpen U -> Homeomophism U (image (restr f U)) 
 
 Section Connectedness.
 

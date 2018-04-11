@@ -31,7 +31,59 @@ Qed.
 Theorem Disjunctive_syllogism : forall P Q : Prop, (P \/ Q) -> ~P -> Q.
 Proof.
   intros P Q H.
-  destruct H.
+  case H.
+  intro.
   intro.
   contradiction.
-  apply H.
+  intro.
+  intro.
+  apply H0.
+Qed.
+
+Theorem DeMorgan1 : forall P Q : Prop, ~P \/ ~Q -> ~(P /\ Q).
+Proof.
+  intros.
+  intro.
+  case H.
+  intro.
+  destruct H0.
+  contradiction.
+  intro.
+  destruct H0.
+  contradiction.
+Qed.  
+Theorem DeMorgan2 : forall P Q : Prop, ~P /\ ~Q -> ~(P \/ Q).
+Proof.
+  intros.
+  destruct H.
+  intro.
+  case H1.
+  contradiction.
+  contradiction.
+Qed.
+
+Theorem DeMorgan3 : forall P Q : Prop, ~(P \/ Q) -> ~P /\ ~Q.
+Proof.
+  intros.
+  split.
+  intro.
+  elim H.
+  left.
+  apply H0.
+  intro.
+  elim H.
+  right.
+  apply H0.
+Qed.
+Theorem NotNot_LEM : forall P : Prop, ~ ~(P \/ ~P).
+Proof.
+  intros.
+  intro.
+  elim H.
+  right.
+  intro.
+  elim H.
+  left.
+  apply H0.
+Qed.  
+

@@ -1,3 +1,4 @@
+(* http://study-func-prog.blogspot.jp/2012/04/coq-group-on-setoid.html *)
 Require Import Relation_Definitions Setoid Morphisms.
 Require Import Arith Omega.
 

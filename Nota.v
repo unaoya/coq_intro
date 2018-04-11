@@ -1,3 +1,4 @@
+(* http://www.ne.jp/asahi/fmsci/fmmath/coqp/vvof/Nota.v *)
 Parameter Element : forall A:Type, Set -> A -> Prop.
 Implicit Arguments Element [A].
 Notation "a /e b" := (Element a b) (at level 50).

@@ -1,3 +1,4 @@
+(* http://www.iij-ii.co.jp/lab/techdoc/coqt/coqt4.html *)
 Inductive nat : Set :=
 | O : nat
 | S : nat -> nat.

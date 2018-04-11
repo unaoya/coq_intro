@@ -1,3 +1,4 @@
+(* http://www.iij-ii.co.jp/lab/techdoc/coqt/coqt5.html *)
 Goal forall (P Q R S : Prop), (S /\ P) /\ (Q /\ R) -> (P /\ S) /\ (R /\ Q).
   intros.
   destruct H.

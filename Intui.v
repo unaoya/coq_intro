@@ -1,3 +1,5 @@
+(* http://www.ne.jp/asahi/fmsci/fmmath/coqp/vvof/Intui.v *)
+
 Theorem Syllog : forall A B C : Prop, (A -> B) -> (B -> C) -> (A -> C).
 Proof.
   intros.

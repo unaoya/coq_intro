@@ -1,3 +1,4 @@
+(* http://www.iij-ii.co.jp/lab/techdoc/coqt/coqt2.html *)
 Goal forall (P Q : Prop), (forall P :Prop, (P -> Q) -> Q) -> ((P -> Q) -> P) -> P.
 intros.apply H0.intro.apply (H (P -> Q)).intros.apply H2.apply H1.Qed.
   

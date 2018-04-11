@@ -1,3 +1,4 @@
+(* http://www.iij-ii.co.jp/lab/techdoc/coqt/coqt4.html *)
 Require Import Arith.
 
 Goal forall (n : nat), (exists m : nat, n = m * 4) -> exists k : nat, n = k * 2.
